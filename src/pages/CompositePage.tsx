@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useImageContext } from '../context/ImageContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 const CompositePage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { backgroundImage, croppedTextImage, processedTextImage } = useImageContext();
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(null);
   const [textImg, setTextImg] = useState<HTMLImageElement | null>(null);
@@ -145,6 +148,9 @@ const CompositePage: React.FC = () => {
       ctx.translate(textPosition.x, textPosition.y);
       ctx.rotate((textRotation * Math.PI) / 180);
       ctx.scale(textScale, textScale);
+      
+      // 텍스트 이미지 그리기
+      if (!textImg) return;
       
       // 블렌드 모드 적용 (브라우저 호환성 개선)
       if (blendMode === 'multiply') {
@@ -552,6 +558,9 @@ const CompositePage: React.FC = () => {
     outputCtx.rotate((textRotation * Math.PI) / 180);
     outputCtx.scale(outputTextScale, outputTextScale);
     
+    // 텍스트 이미지 그리기
+    if (!textImg) return;
+    
     // 블렌드 모드 적용
     if (blendMode === 'multiply') {
       // 검은 글씨: multiply 모드
@@ -615,6 +624,17 @@ const CompositePage: React.FC = () => {
     navigate('/');
   };
 
+  // 애드센스 초기화
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      }
+    } catch (error) {
+      console.error('AdSense error:', error);
+    }
+  }, []);
+
   // 이미지 미리보기 모달 표시
   const showImagePreview = (imageUrl: string) => {
     setPreviewImageUrl(imageUrl);
@@ -657,6 +677,11 @@ const CompositePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 font-dongle">
+      {/* 언어 선택기 */}
+      <div className="absolute top-6 right-6 z-10">
+        <LanguageSelector />
+      </div>
+
       <div className="text-center max-w-4xl mx-auto w-full">
         {/* 헤더 */}
         <div className="mb-6">
@@ -668,7 +693,7 @@ const CompositePage: React.FC = () => {
               ←
             </button>
             <h1 className="text-6xl md:text-7xl font-bold text-gray-800 text-center">
-              이미지 합성
+              {t('compositeTitle')}
             </h1>
           </div>
         </div>
@@ -685,7 +710,7 @@ const CompositePage: React.FC = () => {
                   : 'bg-gray-200 text-gray-800'
               }`}
             >
-              검은 글씨
+              {t('multiply')}
             </button>
             <button
               onClick={() => setBlendMode('screen')}
@@ -695,7 +720,7 @@ const CompositePage: React.FC = () => {
                   : 'bg-gray-200 text-gray-800'
               }`}
             >
-              흰 글씨
+              {t('screen')}
             </button>
           </div>
 
@@ -729,18 +754,18 @@ const CompositePage: React.FC = () => {
  
 
           {/* 액션 버튼들 */}
-          <div className="flex space-x-4">
+          <div className="flex justify-center space-x-4">
             <button
               onClick={handleBack}
-              className="flex-1 bg-gray-500 text-white py-4 px-8 rounded-2xl text-2xl font-bold hover:bg-gray-600 transition-colors duration-300 shadow-lg hover:shadow-xl"
+              className="bg-gray-500 text-white py-3 px-6 rounded-xl text-lg font-bold hover:bg-gray-600 transition-colors duration-300 shadow-lg hover:shadow-xl"
             >
-              뒤로가기
+              {t('back')}
             </button>
             <button
               onClick={handleDownload}
-              className="flex-1 bg-purple-600 text-white py-4 px-8 rounded-2xl text-2xl font-bold hover:bg-purple-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+              className="bg-purple-600 text-white py-3 px-6 rounded-xl text-lg font-bold hover:bg-purple-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
             >
-              저장하기
+              {t('save')}
             </button>
           </div>
         </div>
@@ -748,8 +773,71 @@ const CompositePage: React.FC = () => {
         {/* 안내 메시지 */}
         <div className="mt-8 p-4 bg-purple-50 rounded-xl">
           <p className="text-lg text-purple-800">
-            💡 <strong>팁:</strong> 글씨를 터치해서 드래그하면 이동하고, 모서리 핸들을 드래그하면 크기 조절, 위쪽 회전 핸들을 드래그하면 회전합니다
+            💡 <strong>{t('tip')}:</strong> {t('compositeTip')}
           </p>
+        </div>
+
+        {/* 광고 영역 - 하단 */}
+        <div className="mt-8">
+          <div className="w-full max-w-4xl mx-auto px-4">
+            {/* 모바일 광고 */}
+            <div className="md:hidden">
+              <div 
+                className="ad-container text-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2" 
+                style={{ 
+                  minWidth: '320px', 
+                  minHeight: '50px',
+                  width: '100%',
+                  maxWidth: '320px',
+                  height: '50px'
+                }}
+              >
+                <ins 
+                  className="adsbygoogle"
+                  style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '50px',
+                    minWidth: '320px',
+                    minHeight: '50px'
+                  }}
+                  data-ad-client="ca-pub-6828888022370871"
+                  data-ad-slot="6095639323"
+                  data-ad-format="horizontal"
+                  data-full-width-responsive="false"
+                />
+              </div>
+            </div>
+
+            {/* 데스크톱 광고 */}
+            <div className="hidden md:block">
+              <div 
+                className="ad-container text-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2" 
+                style={{ 
+                  minWidth: '728px', 
+                  minHeight: '90px',
+                  width: '100%',
+                  maxWidth: '728px',
+                  height: '90px'
+                }}
+              >
+                <ins 
+                  className="adsbygoogle"
+                  style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '90px',
+                    minWidth: '728px',
+                    minHeight: '90px'
+                  }}
+                  data-ad-client="ca-pub-6828888022370871"
+                  data-ad-slot="6095639323"
+                  data-ad-format="horizontal"
+                  data-full-width-responsive="false"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -768,8 +856,8 @@ const CompositePage: React.FC = () => {
             </button>
             
             <div className="text-center mb-4">
-              <h3 className="text-3xl font-bold text-gray-800 mb-2">이미지 저장</h3>
-              <p className="text-lg text-gray-600">이미지를 길게 눌러 저장하세요</p>
+              <h3 className="text-3xl font-bold text-gray-800 mb-2">{t('imageSave')}</h3>
+              <p className="text-lg text-gray-600">{t('longPressToSave')}</p>
             </div>
             
             <div className="mb-6">
@@ -811,8 +899,8 @@ const CompositePage: React.FC = () => {
           <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center space-x-3">
             <div className="text-2xl">📸</div>
             <div>
-              <div className="font-bold text-lg">저장 완료!</div>
-              <div className="text-sm opacity-90">저장되었습니다</div>
+              <div className="font-bold text-lg">{t('saveComplete')}</div>
+              <div className="text-sm opacity-90">{t('saved')}</div>
             </div>
           </div>
         </div>

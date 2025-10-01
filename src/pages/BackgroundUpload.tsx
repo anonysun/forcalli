@@ -1,10 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
+import { useTranslation } from 'react-i18next';
 import { useImageContext } from '../context/ImageContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 const BackgroundUpload: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { setBackgroundImage } = useImageContext();
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -44,8 +47,24 @@ const BackgroundUpload: React.FC = () => {
     navigate('/');
   };
 
+  // 애드센스 초기화
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      }
+    } catch (error) {
+      console.error('AdSense error:', error);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 font-dongle">
+      {/* 언어 선택기 */}
+      <div className="absolute top-6 right-6 z-10">
+        <LanguageSelector />
+      </div>
+
       <div className="text-center max-w-lg mx-auto">
         {/* 헤더 */}
         <div className="mb-8">
@@ -57,11 +76,11 @@ const BackgroundUpload: React.FC = () => {
               ←
             </button>
             <h1 className="text-6xl md:text-7xl font-bold text-gray-800 text-center">
-              배경 이미지
+              {t('backgroundUploadTitle')}
             </h1>
           </div>
           <p className="text-2xl text-gray-600 text-center">
-            배경으로 사용할 이미지를 업로드하세요
+            {t('backgroundUploadSubtitle')}
           </p>
         </div>
 
@@ -80,7 +99,7 @@ const BackgroundUpload: React.FC = () => {
             {isUploading ? (
               <div className="space-y-4">
                 <div className="w-16 h-16 mx-auto border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-2xl text-gray-600">업로드 중...</p>
+                <p className="text-2xl text-gray-600">{t('loading')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -89,10 +108,10 @@ const BackgroundUpload: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-800 mb-2">
-                    {isDragActive ? '여기에 놓으세요!' : '이미지 업로드'}
+                    {isDragActive ? t('dropHere') : t('imageUpload')}
                   </p>
                   <p className="text-lg text-gray-600">
-                    JPG, PNG 파일을 드래그하거나 클릭하세요
+                    {t('dragOrClick')}
                   </p>
                 </div>
               </div>
@@ -109,22 +128,87 @@ const BackgroundUpload: React.FC = () => {
               />
               <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-2xl flex items-center justify-center">
                 <div className="bg-green-500 text-white px-6 py-3 rounded-xl text-xl font-bold">
-                  ✓ 업로드 완료!
+                  ✓ {t('uploadComplete')}
                 </div>
               </div>
             </div>
             
             <p className="text-xl text-gray-600">
-              다음 단계로 이동합니다...
+              {t('nextStep')}
             </p>
           </div>
         )}
 
-        {/* 안내 메시지 */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-xl">
-          <p className="text-lg text-blue-800">
-            💡 <strong>팁:</strong> 고해상도 이미지를 사용하면 더 좋은 결과를 얻을 수 있습니다
-          </p>
+        {/* 안내 메시지 - 업로드 전에만 표시 */}
+        {!uploadedImage && (
+          <div className="mt-8 p-4 bg-blue-50 rounded-xl">
+            <p className="text-lg text-blue-800">
+              💡 <strong>{t('tip')}:</strong> {t('backgroundUploadTip')}
+            </p>
+          </div>
+        )}
+
+        {/* 광고 영역 - 하단 */}
+        <div className="mt-8">
+          <div className="w-full max-w-4xl mx-auto px-4">
+            {/* 모바일 광고 */}
+            <div className="md:hidden">
+              <div 
+                className="ad-container text-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2" 
+                style={{ 
+                  minWidth: '320px', 
+                  minHeight: '50px',
+                  width: '100%',
+                  maxWidth: '320px',
+                  height: '50px'
+                }}
+              >
+                <ins 
+                  className="adsbygoogle"
+                  style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '50px',
+                    minWidth: '320px',
+                    minHeight: '50px'
+                  }}
+                  data-ad-client="ca-pub-6828888022370871"
+                  data-ad-slot="6095639323"
+                  data-ad-format="horizontal"
+                  data-full-width-responsive="false"
+                />
+              </div>
+            </div>
+
+            {/* 데스크톱 광고 */}
+            <div className="hidden md:block">
+              <div 
+                className="ad-container text-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2" 
+                style={{ 
+                  minWidth: '728px', 
+                  minHeight: '90px',
+                  width: '100%',
+                  maxWidth: '728px',
+                  height: '90px'
+                }}
+              >
+                <ins 
+                  className="adsbygoogle"
+                  style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '90px',
+                    minWidth: '728px',
+                    minHeight: '90px'
+                  }}
+                  data-ad-client="ca-pub-6828888022370871"
+                  data-ad-slot="6095639323"
+                  data-ad-format="horizontal"
+                  data-full-width-responsive="false"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -52,6 +52,45 @@ export const convertToBlackAndWhite = (imageDataUrl: string): Promise<string> =>
   });
 };
 
+// 이미지 압축 함수 (품질과 파일 크기 균형)
+export const compressImage = (imageDataUrl: string, quality: number = 0.8, maxWidth: number = 1920): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        resolve(imageDataUrl);
+        return;
+      }
+
+      // 비율 유지하면서 크기 조정
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      // 고화질 렌더링 설정
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      // 이미지 그리기
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // 압축된 결과를 Data URL로 변환
+      const resultDataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(resultDataUrl);
+    };
+    
+    img.src = imageDataUrl;
+  });
+};
+
 // 이미지 크기 조정 함수 (너무 큰 이미지 처리용)
 export const resizeImage = (imageDataUrl: string, maxWidth: number = 800): Promise<string> => {
   return new Promise((resolve) => {

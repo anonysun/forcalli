@@ -1,8 +1,10 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { useImageContext } from '../context/ImageContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 // 타입 정의
 interface Crop {
@@ -22,6 +24,7 @@ interface PixelCrop {
 
 const CropPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { processedTextImage, setCroppedTextImage } = useImageContext();
   const [crop, setCrop] = useState<Crop>({
     unit: 'px',
@@ -179,8 +182,24 @@ const CropPage: React.FC = () => {
     navigate('/text-upload');
   };
 
+  // 애드센스 초기화
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      }
+    } catch (error) {
+      console.error('AdSense error:', error);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 font-dongle">
+      {/* 언어 선택기 */}
+      <div className="absolute top-6 right-6 z-10">
+        <LanguageSelector />
+      </div>
+
       <div className="text-center max-w-4xl mx-auto w-full">
         {/* 헤더 */}
         <div className="mb-6">
@@ -192,11 +211,11 @@ const CropPage: React.FC = () => {
               ←
             </button>
             <h1 className="text-6xl md:text-7xl font-bold text-gray-800 text-center">
-              글씨 자르기
+              {t('cropTitle')}
             </h1>
           </div>
           <p className="text-2xl text-gray-600 text-center">
-            원하는 부분만 선택하세요
+            {t('cropSubtitle')}
           </p>
         </div>
 
@@ -230,15 +249,78 @@ const CropPage: React.FC = () => {
                 disabled={isProcessing || !imageLoaded || !crop.width || !crop.height}
                 className="w-full bg-orange-600 text-white py-4 px-8 rounded-2xl text-2xl font-bold hover:bg-orange-700 transition-colors duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? '처리 중...' : !imageLoaded ? '이미지 로딩 중...' : !crop.width || !crop.height ? '크롭 영역을 선택하세요' : '자르기 완료'}
+                {isProcessing ? t('processing') : !imageLoaded ? t('imageLoading') : !crop.width || !crop.height ? t('selectCropArea') : t('cropComplete')}
               </button>
             </div>
 
         {/* 안내 메시지 */}
         <div className="mt-8 p-4 bg-orange-50 rounded-xl">
           <p className="text-lg text-orange-800">
-            💡 <strong>팁:</strong> 이미지 위의 크롭 영역을 드래그해서 이동하고, 모서리를 드래그해서 크기를 조절하세요.
+            💡 <strong>{t('tip')}:</strong> {t('cropTip')}
           </p>
+        </div>
+
+        {/* 광고 영역 - 하단 */}
+        <div className="mt-8">
+          <div className="w-full max-w-4xl mx-auto px-4">
+            {/* 모바일 광고 */}
+            <div className="md:hidden">
+              <div 
+                className="ad-container text-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2" 
+                style={{ 
+                  minWidth: '320px', 
+                  minHeight: '50px',
+                  width: '100%',
+                  maxWidth: '320px',
+                  height: '50px'
+                }}
+              >
+                <ins 
+                  className="adsbygoogle"
+                  style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '50px',
+                    minWidth: '320px',
+                    minHeight: '50px'
+                  }}
+                  data-ad-client="ca-pub-6828888022370871"
+                  data-ad-slot="6095639323"
+                  data-ad-format="horizontal"
+                  data-full-width-responsive="false"
+                />
+              </div>
+            </div>
+
+            {/* 데스크톱 광고 */}
+            <div className="hidden md:block">
+              <div 
+                className="ad-container text-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-2" 
+                style={{ 
+                  minWidth: '728px', 
+                  minHeight: '90px',
+                  width: '100%',
+                  maxWidth: '728px',
+                  height: '90px'
+                }}
+              >
+                <ins 
+                  className="adsbygoogle"
+                  style={{ 
+                    display: 'block',
+                    width: '100%',
+                    height: '90px',
+                    minWidth: '728px',
+                    minHeight: '90px'
+                  }}
+                  data-ad-client="ca-pub-6828888022370871"
+                  data-ad-slot="6095639323"
+                  data-ad-format="horizontal"
+                  data-full-width-responsive="false"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
